@@ -2,8 +2,9 @@ package io.weaviate.spark
 
 import WeaviateOptions._
 
+import io.weaviate.client.{Config, WeaviateAuthClient, WeaviateClient}
 import org.apache.spark.sql.util.CaseInsensitiveStringMap
-import io.weaviate.client.{Config, WeaviateClient, WeaviateAuthClient}
+
 import scala.collection.JavaConverters._
 
 class WeaviateOptions(config: CaseInsensitiveStringMap) extends Serializable {
@@ -19,6 +20,10 @@ class WeaviateOptions(config: CaseInsensitiveStringMap) extends Serializable {
   val scheme: String = config.get(WEAVIATE_SCHEME_CONF)
   val className: String = config.get(WEAVIATE_CLASSNAME_CONF)
   val tenant: String = config.getOrDefault(WEAVIATE_TENANT_CONF, null)
+  val tenant_column: String = config.getOrDefault(WEAVIATE_TENANT_COLUMN_CONF, null)
+  if (tenant != null && tenant_column != null) {
+    throw WeaviateIllegalConfigException("Can not configure both tenant and tenant.column!")
+  }
   val vector: String = config.get(WEAVIATE_VECTOR_COLUMN_CONF)
   val id: String = config.get(WEAVIATE_ID_COLUMN_CONF)
   val retries: Int = config.getInt(WEAVIATE_RETRIES_CONF, DEFAULT_RETRIES)
@@ -63,12 +68,13 @@ class WeaviateOptions(config: CaseInsensitiveStringMap) extends Serializable {
 
 object WeaviateOptions {
   val WEAVIATE_BATCH_SIZE_CONF: String = "batchSize"
-  val WEAVIATE_HOST_CONF: String       = "host"
-  val WEAVIATE_SCHEME_CONF: String     = "scheme"
-  val WEAVIATE_CLASSNAME_CONF: String  = "className"
-  val WEAVIATE_TENANT_CONF: String  = "tenant"
-  val WEAVIATE_VECTOR_COLUMN_CONF: String  = "vector"
-  val WEAVIATE_ID_COLUMN_CONF: String  = "id"
+  val WEAVIATE_HOST_CONF: String = "host"
+  val WEAVIATE_SCHEME_CONF: String = "scheme"
+  val WEAVIATE_CLASSNAME_CONF: String = "className"
+  val WEAVIATE_TENANT_CONF: String = "tenant"
+  val WEAVIATE_TENANT_COLUMN_CONF: String = "tenant.column"
+  val WEAVIATE_VECTOR_COLUMN_CONF: String = "vector"
+  val WEAVIATE_ID_COLUMN_CONF: String = "id"
   val WEAVIATE_RETRIES_CONF: String = "retries"
   val WEAVIATE_RETRIES_BACKOFF_CONF: String = "retriesBackoff"
   val WEAVIATE_TIMEOUT: String = "timeout"

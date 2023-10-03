@@ -65,6 +65,7 @@ case class WeaviateDataWriter(weaviateOptions: WeaviateOptions, schema: StructTy
       field._1.name match {
         case weaviateOptions.vector => builder = builder.vector(record.getArray(field._2).toArray(FloatType))
         case weaviateOptions.id => builder = builder.id(record.getString(field._2))
+        case weaviateOptions.tenant_column => builder = builder.tenant(record.getString(field._2))
         case _ => properties(field._1.name) = getValueFromField(field._2, record, field._1.dataType)
       }
     )
